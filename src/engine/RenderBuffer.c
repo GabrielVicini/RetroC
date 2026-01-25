@@ -5,46 +5,85 @@
 #include <stdio.h>
 
 Framebuffer Framebuffer_Create(int w, int h) {
-    Framebuffer fb;
+    Framebuffer fb = {0};
     fb.width = w;
     fb.height = h;
 
-    fb.pixels = malloc(w * h * sizeof(Color));
+    if (w <= 0 || h <= 0) {
+        return fb;
+    }
 
-    for (int i = 0; i < w * h; i++)
+    size_t total = (size_t)w * (size_t)h;
+    fb.pixels = malloc(total * sizeof(Color));
+    if (!fb.pixels) {
+        fb.width = 0;
+        fb.height = 0;
+        return fb;
+    }
+
+    for (size_t i = 0; i < total; i++) {
         fb.pixels[i] = BLACK;
+    }
 
     Image img = GenImageColor(w, h, BLACK);
     fb.texture = LoadTextureFromImage(img);
 
     UnloadImage(img);
 
+    if (fb.texture.id == 0) {
+        free(fb.pixels);
+        fb.pixels = NULL;
+        fb.width = 0;
+        fb.height = 0;
+    }
+
     return fb;
 }
 
 void Framebuffer_Destroy(Framebuffer *fb) {
-    if (fb->pixels)
-        free(fb->pixels);
+    if (!fb) {
+        return;
+    }
 
-    UnloadTexture(fb->texture);
+    if (fb->pixels) {
+        free(fb->pixels);
+    }
+
+    if (fb->texture.id != 0) {
+        UnloadTexture(fb->texture);
+    }
 
     fb->pixels = NULL;
+    fb->texture.id = 0;
+    fb->width = 0;
+    fb->height = 0;
 }
 
 void Framebuffer_Resize(Framebuffer *fb, int newW, int newH) {
-    UnloadTexture(fb->texture);
-    free(fb->pixels);
+    if (!fb) {
+        return;
+    }
 
+    Framebuffer_Destroy(fb);
     *fb = Framebuffer_Create(newW, newH);
 }
 
 void Framebuffer_Clear(Framebuffer *fb, Color c) {
+    if (!fb || !fb->pixels) {
+        return;
+    }
+
     int total = fb->width * fb->height;
-    for (int i = 0; i < total; i++)
+    for (int i = 0; i < total; i++) {
         fb->pixels[i] = c;
+    }
 }
 
 void Framebuffer_FillRect(Framebuffer *fb, int x, int y, int w, int h, Color c) {
+    if (!fb || !fb->pixels) {
+        return;
+    }
+
     if (x < 0) { w += x; x = 0; }
     if (y < 0) { h += y; y = 0; }
     if (x + w > fb->width)  w = fb->width  - x;
@@ -145,13 +184,22 @@ void Framebuffer_DrawLine(Framebuffer *fb,
 
 
 void Framebuffer_SetPixel(Framebuffer *fb, int x, int y, Color c) {
-    if (x < 0 || y < 0 || x >= fb->width || y >= fb->height)
+    if (!fb || !fb->pixels) {
         return;
+    }
+
+    if (x < 0 || y < 0 || x >= fb->width || y >= fb->height) {
+        return;
+    }
 
     fb->pixels[y * fb->width + x] = c;
 }
 
 void Framebuffer_Render(Framebuffer *fb, int screenW, int screenH) {
+    if (!fb || !fb->pixels || fb->texture.id == 0) {
+        return;
+    }
+
     UpdateTexture(fb->texture, fb->pixels);
 
 

@@ -1,5 +1,6 @@
 #include "engine/RenderBuffer.h"
 #include <stdio.h>
+#include "lauxlib.h"
 #include "raylib.h"
 #include "lua/LuaGraphics.h"
 

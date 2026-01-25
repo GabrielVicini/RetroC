@@ -8,7 +8,10 @@
 
 #define INPUT_TEXT_MAX 512
 #define INPUT_EVENT_MAX 128
-#define INPUT_KEY_MAX 512
+#ifndef KEY_KB_MENU
+#define KEY_KB_MENU 348
+#endif
+#define INPUT_KEY_MAX (KEY_KB_MENU + 1)
 
 typedef enum {
     INPUT_EVENT_KEY_DOWN = 1,

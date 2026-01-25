@@ -13,9 +13,6 @@ static void LuaEngine_AppendPackagePath(lua_State *L, const char *resource_root)
         return;
     }
 
-    char extra[2048];
-    snprintf(extra, sizeof(extra), "%s/rom/?.lua;%s/rom/?/init.lua", resource_root, resource_root);
-
     lua_getglobal(L, "package");
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1);
@@ -28,11 +25,8 @@ static void LuaEngine_AppendPackagePath(lua_State *L, const char *resource_root)
         cur = "";
     }
 
-    char merged[4096];
-    snprintf(merged, sizeof(merged), "%s;%s", extra, cur);
-
     lua_pop(L, 1);
-    lua_pushstring(L, merged);
+    lua_pushfstring(L, "%s/rom/?.lua;%s/rom/?/init.lua;%s", resource_root, resource_root, cur);
     lua_setfield(L, -2, "path");
     lua_pop(L, 1);
 }
