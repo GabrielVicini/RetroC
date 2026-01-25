@@ -37,6 +37,8 @@ static unsigned char g_mouse_down[3];
 static Vector2 g_mouse_pos;
 static Vector2 g_mouse_delta;
 static float g_mouse_wheel;
+static int g_view_w;
+static int g_view_h;
 
 static char g_text[INPUT_TEXT_MAX];
 static size_t g_text_len;
@@ -51,6 +53,48 @@ static void Input_ClearEvents(void) {
 static void Input_ClearText(void) {
     g_text_len = 0;
     g_text[0] = '\0';
+}
+
+static float ClampFloat(float v, float lo, float hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+}
+
+static void Input_ReadMouse(Vector2 *pos_out, Vector2 *delta_out) {
+    Vector2 raw_pos = GetMousePosition();
+    Vector2 raw_delta = GetMouseDelta();
+    float scale_x = 1.0f;
+    float scale_y = 1.0f;
+
+    if (g_view_w > 0) {
+        int screen_w = GetScreenWidth();
+        if (screen_w > 0) {
+            scale_x = (float)g_view_w / (float)screen_w;
+        }
+    }
+    if (g_view_h > 0) {
+        int screen_h = GetScreenHeight();
+        if (screen_h > 0) {
+            scale_y = (float)g_view_h / (float)screen_h;
+        }
+    }
+
+    if (pos_out) {
+        pos_out->x = raw_pos.x * scale_x;
+        pos_out->y = raw_pos.y * scale_y;
+        if (g_view_w > 0) {
+            pos_out->x = ClampFloat(pos_out->x, 0.0f, (float)(g_view_w - 1));
+        }
+        if (g_view_h > 0) {
+            pos_out->y = ClampFloat(pos_out->y, 0.0f, (float)(g_view_h - 1));
+        }
+    }
+
+    if (delta_out) {
+        delta_out->x = raw_delta.x * scale_x;
+        delta_out->y = raw_delta.y * scale_y;
+    }
 }
 
 static void Input_PushEvent(InputEvent ev) {
@@ -219,7 +263,7 @@ static int Lua_CheckMouseButton(lua_State *L, int index) {
 void Keyboard_Init(void) {
     memset(g_key_down, 0, sizeof(g_key_down));
     memset(g_mouse_down, 0, sizeof(g_mouse_down));
-    g_mouse_pos = GetMousePosition();
+    Input_ReadMouse(&g_mouse_pos, NULL);
     g_mouse_delta = (Vector2){0, 0};
     g_mouse_wheel = 0.0f;
     Input_ClearEvents();
@@ -234,29 +278,34 @@ void Keyboard_Init(void) {
     g_mouse_down[2] = IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) ? 1 : 0;
 }
 
-void Keyboard_Update(void) {
-    g_mouse_pos = GetMousePosition();
-    {
-        Vector2 delta = GetMouseDelta();
-        g_mouse_delta.x += delta.x;
-        g_mouse_delta.y += delta.y;
-    }
-    g_mouse_wheel += GetMouseWheelMove();
+void Keyboard_SetViewport(int width, int height) {
+    g_view_w = width > 0 ? width : 0;
+    g_view_h = height > 0 ? height : 0;
+}
 
-    if (g_mouse_delta.x != 0.0f || g_mouse_delta.y != 0.0f) {
+void Keyboard_Update(void) {
+    Vector2 frame_delta = {0, 0};
+    float frame_wheel = GetMouseWheelMove();
+
+    Input_ReadMouse(&g_mouse_pos, &frame_delta);
+    g_mouse_delta.x += frame_delta.x;
+    g_mouse_delta.y += frame_delta.y;
+    g_mouse_wheel += frame_wheel;
+
+    if (frame_delta.x != 0.0f || frame_delta.y != 0.0f) {
         InputEvent ev = {0};
         ev.type = INPUT_EVENT_MOUSE_MOVE;
         ev.x = g_mouse_pos.x;
         ev.y = g_mouse_pos.y;
-        ev.dx = g_mouse_delta.x;
-        ev.dy = g_mouse_delta.y;
+        ev.dx = frame_delta.x;
+        ev.dy = frame_delta.y;
         Input_PushEvent(ev);
     }
 
-    if (g_mouse_wheel != 0.0f) {
+    if (frame_wheel != 0.0f) {
         InputEvent ev = {0};
         ev.type = INPUT_EVENT_MOUSE_WHEEL;
-        ev.wheel = g_mouse_wheel;
+        ev.wheel = frame_wheel;
         Input_PushEvent(ev);
     }
 

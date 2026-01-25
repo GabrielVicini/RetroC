@@ -4,6 +4,7 @@
 #include "lua.h"
 
 void Keyboard_Init(void);
+void Keyboard_SetViewport(int width, int height);
 void Keyboard_Update(void);
 void Keyboard_Register(lua_State *L);
 

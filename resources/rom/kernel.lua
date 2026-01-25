@@ -83,7 +83,7 @@ local last_event = ""
 local last_time = sys.getPSTime()
 
 local stars = {}
-local star_count = 120
+local star_count = 200
 local last_w, last_h = 0, 0
 
 local function init_stars(w, h)
@@ -103,9 +103,16 @@ end
 local function draw_stars(w, h, t)
     for i = 1, #stars do
         local s = stars[i]
-        local yy = (s.y + t * (8 + 10 * s.s)) % h
+        local speed = 10 + 18 * s.s
+        local yy = (s.y + t * speed) % h
         local y = math.floor(yy)
-        term.setPixel(s.x, y, 30, 30, 60)
+        local twinkle = 0.5 + 0.5 * math.sin(t * (1.5 + s.s * 3) + s.x * 0.11 + s.y * 0.07)
+        local bright = clamp(80 + s.s * 120 + twinkle * 40, 60, 255)
+        local b = math.floor(bright)
+        term.setPixel(s.x, y, b, b, clamp(b + 40, 0, 255))
+        if s.s > 0.75 and y + 1 < h then
+            term.setPixel(s.x, y + 1, b, b, clamp(b + 20, 0, 255))
+        end
     end
 end
 

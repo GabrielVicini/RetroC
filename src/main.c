@@ -28,7 +28,7 @@ static void BuildResourcePath(char *out, size_t out_size, const char *relative) 
 
 int main(void)
 {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(620, 360, "Emulator");
 
     char resourceRoot[1024];
@@ -57,6 +57,7 @@ int main(void)
 
     GraphicsInit(&fb);
     SystemInit(&fb);
+    Keyboard_SetViewport(fbWidth, fbHeight);
     Keyboard_Init();
 
     LuaEngine_RunStartup(L, resourceRoot);
