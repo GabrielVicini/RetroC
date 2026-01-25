@@ -1,4 +1,4 @@
-#include "render_buffer.h"
+#include "engine/RenderBuffer.h"
 #include <stdio.h>
 #include "raylib.h"
 #include "lua/LuaGraphics.h"
@@ -52,11 +52,6 @@ static int lua_term_getPixel(lua_State *L) {
     lua_pushinteger(L, (int)c.b);
     lua_pushinteger(L, 1); // success
     return 4;
-}
-
-static int lua_term_setPixels(lua_State *L) {
-    // I'm thinking the user can pass a table of colors and positions to stop sending so many API calls.
-    return 1;
 }
 
 static int lua_term_setPixel(lua_State *L) {
@@ -164,9 +159,6 @@ void GraphicsRegister(lua_State *L) {
 
     lua_pushcfunction(L, lua_term_setPixel);
     lua_setfield(L, -2, "setPixel");
-
-    lua_pushcfunction(L, lua_term_setPixel);
-    lua_setfield(L, -2, "setPixels");
 
     lua_pushcfunction(L, lua_term_getSize);
     lua_setfield(L, -2, "getSize");

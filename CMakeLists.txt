@@ -1,36 +1,37 @@
 cmake_minimum_required(VERSION 3.10)
 project(RetroC C)
-
 set(CMAKE_C_STANDARD 11)
 
-set(RAYLIB_PATH      "C:/Libraries/raylib")
-set(LUAJIT_SRC_PATH  "C:/Users/Gabriel/Desktop/LuaJIT/src")
+set(RAYLIB_PATH "" CACHE PATH "Path to raylib (root with include/ and lib/)")
+set(LUAJIT_SRC_PATH "" CACHE PATH "Path to LuaJIT src directory (contains lua.h)")
 
-set(LUAJIT_LIB       "${LUAJIT_SRC_PATH}/libluajit-5.1.dll.a")
-set(LUAJIT_DLL       "${LUAJIT_SRC_PATH}/lua51.dll")
+if (NOT RAYLIB_PATH)
+    message(FATAL_ERROR "RAYLIB_PATH is required. Set it to the raylib root directory.")
+endif()
+if (NOT LUAJIT_SRC_PATH)
+    message(FATAL_ERROR "LUAJIT_SRC_PATH is required. Set it to the LuaJIT src directory.")
+endif()
 
-link_directories(${RAYLIB_PATH}/lib)
-
-file(COPY "resources" DESTINATION "${CMAKE_BINARY_DIR}/resources")
+set(LUAJIT_LIB "${LUAJIT_SRC_PATH}/libluajit-5.1.dll.a")
+set(LUAJIT_DLL "${LUAJIT_SRC_PATH}/lua51.dll")
 
 add_executable(RetroC
-        main.c
-        engine/render_buffer.c
-        engine/lua_engine.c
-        lua/LuaKeyboard.c
-        lua/LuaGraphics.c
-        lua/LuaSystem.c
+        src/main.c
+        src/engine/RenderBuffer.c
+        src/engine/LuaEngine.c
+        src/lua/LuaKeyboard.c
+        src/lua/LuaGraphics.c
+        src/lua/LuaSystem.c
 )
 
 target_include_directories(RetroC PUBLIC
         ${RAYLIB_PATH}/include
-        ${LUAJIT_SRC_PATH}           # for lua.h, luajit.h, lauxlib.h, etc.
-        ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/engine
-        ${CMAKE_SOURCE_DIR}/lua/library
+        ${LUAJIT_SRC_PATH} # for lua.h, luajit.h, lauxlib.h, etc.
+        ${CMAKE_SOURCE_DIR}/src
 )
 
 if (WIN32)
+    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
     target_link_libraries(RetroC
             ${LUAJIT_LIB}        # link LuaJIT
             raylib
@@ -39,6 +40,7 @@ if (WIN32)
             winmm
     )
 elseif (APPLE)
+    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
     target_link_libraries(RetroC
             ${LUAJIT_LIB}
             raylib
@@ -47,7 +49,8 @@ elseif (APPLE)
             "-framework IOKit"
             "-framework CoreVideo"
     )
-else()  # Linux or other UNIX
+else()
+    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
     target_link_libraries(RetroC
             ${LUAJIT_LIB}
             raylib

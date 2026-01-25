@@ -2,8 +2,7 @@
 #define LuaSystem_h
 
 #include "lua.h"
-#include "lauxlib.h"
-#include "render_buffer.h"
+#include "engine/RenderBuffer.h"
 
 void SystemInit(Framebuffer *fb);
 void SystemRegister(lua_State *L);

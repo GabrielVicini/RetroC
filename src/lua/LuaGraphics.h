@@ -2,8 +2,7 @@
 #define LuaGraphics_h
 
 #include "lua.h"
-#include "lauxlib.h"
-#include "render_buffer.h"
+#include "engine/RenderBuffer.h"
 
 void GraphicsInit(Framebuffer *fb);
 void GraphicsRegister(lua_State *L);

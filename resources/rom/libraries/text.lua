@@ -1,3 +1,5 @@
+-- ASCII Display Driver
+
 local text = {}
 
 function text.font()

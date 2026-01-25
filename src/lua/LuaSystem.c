@@ -1,7 +1,8 @@
-#include "render_buffer.h"
+#include "engine/RenderBuffer.h"
 #include <stdio.h>
 #include "raylib.h"
 #include "lua/LuaSystem.h"
+#include "lauxlib.h"
 
 #include <time.h>
 

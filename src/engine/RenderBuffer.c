@@ -1,4 +1,4 @@
-#include "render_buffer.h"
+#include "RenderBuffer.h"
 #include "raylib.h"
 #include <string.h>
 #include <stdlib.h>
@@ -14,20 +14,13 @@ Framebuffer Framebuffer_Create(int w, int h) {
     for (int i = 0; i < w * h; i++)
         fb.pixels[i] = BLACK;
 
-
     Image img = GenImageColor(w, h, BLACK);
-
-
     fb.texture = LoadTextureFromImage(img);
-
 
     UnloadImage(img);
 
     return fb;
 }
-
-
-
 
 void Framebuffer_Destroy(Framebuffer *fb) {
     if (fb->pixels)
@@ -39,12 +32,8 @@ void Framebuffer_Destroy(Framebuffer *fb) {
 }
 
 void Framebuffer_Resize(Framebuffer *fb, int newW, int newH) {
-
     UnloadTexture(fb->texture);
-
-
     free(fb->pixels);
-
 
     *fb = Framebuffer_Create(newW, newH);
 }
@@ -163,7 +152,6 @@ void Framebuffer_SetPixel(Framebuffer *fb, int x, int y, Color c) {
 }
 
 void Framebuffer_Render(Framebuffer *fb, int screenW, int screenH) {
-
     UpdateTexture(fb->texture, fb->pixels);
 
 

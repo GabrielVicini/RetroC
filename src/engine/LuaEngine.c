@@ -1,10 +1,40 @@
-#include "lua_engine.h"
+#include "LuaEngine.h"
 #include "../lua/LuaGraphics.h"
 #include "../lua/LuaSystem.h"
+#include "raylib.h"
 #include <stdio.h>
 
 static lua_State* update_thread = NULL;
 static double update_thread_wake = 0.0;
+
+static void LuaEngine_AppendPackagePath(lua_State *L, const char *resource_root) {
+    if (!resource_root || !*resource_root) {
+        return;
+    }
+
+    char extra[2048];
+    snprintf(extra, sizeof(extra), "%s/rom/?.lua;%s/rom/?/init.lua", resource_root, resource_root);
+
+    lua_getglobal(L, "package");
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1);
+        return;
+    }
+
+    lua_getfield(L, -1, "path");
+    const char *cur = lua_tostring(L, -1);
+    if (!cur) {
+        cur = "";
+    }
+
+    char merged[4096];
+    snprintf(merged, sizeof(merged), "%s;%s", extra, cur);
+
+    lua_pop(L, 1);
+    lua_pushstring(L, merged);
+    lua_setfield(L, -2, "path");
+    lua_pop(L, 1);
+}
 
 lua_State* LuaEngine_Create() {
     lua_State *L = luaL_newstate();
@@ -14,15 +44,25 @@ lua_State* LuaEngine_Create() {
     return L;
 }
 
-
 void LuaEngine_Destroy(lua_State *L) {
     lua_close(L);
 }
 
-void LuaEngine_RunStartup(lua_State *L) {
-    if (luaL_dofile(L, "resources/rom/kernel.lua") != LUA_OK) {
+void LuaEngine_RunStartup(lua_State *L, const char *resource_root) {
+    const char *root = (resource_root && *resource_root) ? resource_root : "resources";
+    char kernelPath[1024];
+    snprintf(kernelPath, sizeof(kernelPath), "%s/rom/kernel.lua", root);
+
+    LuaEngine_AppendPackagePath(L, root);
+
+    if (!FileExists(kernelPath)) {
+        printf("Lua BIOS file not found: %s\n", kernelPath);
+        return;
+    }
+
+    if (luaL_dofile(L, kernelPath) != LUA_OK) {
         const char *err = lua_tostring(L, -1);
-        printf("Lua BIOS error: %s\n", err);
+        printf("Lua BIOS error in %s: %s\n", kernelPath, err ? err : "(unknown)");
         lua_pop(L, 1);
 
         return;
@@ -32,7 +72,7 @@ void LuaEngine_RunStartup(lua_State *L) {
 
     lua_getglobal(update_thread, "main");
     if (!lua_isfunction(update_thread, -1)) {
-        printf("No global 'main' function defined in bios.lua\n");
+        printf("No global 'main' function defined in kernel.lua\n");
         lua_pop(update_thread, 1);
         update_thread = NULL;
         return;
@@ -40,8 +80,6 @@ void LuaEngine_RunStartup(lua_State *L) {
 
     update_thread_wake = 0.0;
 }
-
-
 
 void LuaEngine_Update(lua_State *L) {
     (void)L;

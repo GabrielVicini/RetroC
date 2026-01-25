@@ -3,7 +3,7 @@
 
 #include "lua.h"
 #include "lauxlib.h"
-#include "render_buffer.h"
+#include "engine/RenderBuffer.h"
 
 void Keyboard_Init(Framebuffer *fb);
 void Keyboard_Register(lua_State *L);
