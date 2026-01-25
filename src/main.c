@@ -57,6 +57,7 @@ int main(void)
 
     GraphicsInit(&fb);
     SystemInit(&fb);
+    Keyboard_Init();
 
     LuaEngine_RunStartup(L, resourceRoot);
 
@@ -64,6 +65,7 @@ int main(void)
 
     while (!WindowShouldClose()) {
 
+        Keyboard_Update();
         LuaEngine_Update(L);
 
         BeginDrawing();

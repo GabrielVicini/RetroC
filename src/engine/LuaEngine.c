@@ -1,6 +1,7 @@
 #include "LuaEngine.h"
 #include "../lua/LuaGraphics.h"
 #include "../lua/LuaSystem.h"
+#include "../lua/LuaKeyboard.h"
 #include "raylib.h"
 #include <stdio.h>
 
@@ -41,6 +42,7 @@ lua_State* LuaEngine_Create() {
     luaL_openlibs(L);
     GraphicsRegister(L);
     SystemRegister(L);
+    Keyboard_Register(L);
     return L;
 }
 
