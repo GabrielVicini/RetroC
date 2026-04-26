@@ -69,6 +69,33 @@ function text.drawChar(x, y, codepoint, r, g, b, scale)
     end
 end
 
+function text.getTextWidth(str, scale)
+    scale = scale or 1
+    local codepoints = utf8_to_codepoints(str)
+    local width = 0
+
+    for i = 1, #codepoints do
+        local cp = codepoints[i]
+        -- Use the same logic as drawText: 16px for wide chars, 8px for narrow
+        local step = (cp > 255) and 16 or 8
+        width = width + (step * scale)
+    end
+
+    return width
+end
+
+function text.drawTextCentered(y, str, r, g, b, scale)
+    scale = scale or 1
+
+    -- Get both width and height from your getSize function
+    local screenW, screenH = term.getSize()
+
+    local textW = text.getTextWidth(str, scale)
+    local x = (screenW / 2) - (textW / 2)
+
+    text.drawText(x, y, str, r, g, b, scale)
+end
+
 function text.drawText(x, y, str, r, g, b, scale)
     scale = scale or 1
     local codepoints = utf8_to_codepoints(str)

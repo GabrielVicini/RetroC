@@ -2,6 +2,7 @@
 #include "lua/LuaGraphics.h"
 #include "lua/LuaSystem.h"
 #include "lua/LuaKeyboard.h"
+#include "lua/LuaNetworking.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -49,9 +50,11 @@ void App_Init(AppEngine* app, const char* title, int width, int height) {
     Keyboard_SetViewport(width, height);
     Keyboard_Init();
 
+    Networking_Init();
+
     LuaEngine_RunStartup(app->L, resourceRoot);
 
-    SetTargetFPS(99999);
+    SetTargetFPS(120);
 }
 
 void App_Update(AppEngine* app) {
@@ -83,5 +86,6 @@ void App_Render(AppEngine* app) {
 void App_Shutdown(AppEngine* app) {
     LuaEngine_Destroy(app->L);
     Framebuffer_Destroy(&app->fb);
+    Networking_Shutdown();
     CloseWindow();
 }
