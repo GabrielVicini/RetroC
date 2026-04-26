@@ -1,4 +1,4 @@
-# TINHEAD
+# TINHEAD!
 [tᵻn.hɛːæd̚]
 
 ### What is this?
