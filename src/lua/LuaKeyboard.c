@@ -58,9 +58,35 @@ static int lua_input_lockMouse(lua_State *L) {
     return 0;
 }
 
+static int lua_input_unlockMouse(lua_State *L) {
+    EnableCursor();
+    return 0;
+}
+
 static void Input_ReadMouse(Vector2 *pos_out, Vector2 *delta_out) {
     Vector2 raw_pos = GetMousePosition();
     Vector2 raw_delta = GetMouseDelta();
+
+    int screenW = GetScreenWidth();
+    int screenH = GetScreenHeight();
+
+    if (g_view_w > 0 && g_view_h > 0) {
+        float scale = (float)screenW / g_view_w;
+        if ((float)screenH / g_view_h < scale) {
+            scale = (float)screenH / g_view_h;
+        }
+
+        float drawW = g_view_w * scale;
+        float drawH = g_view_h * scale;
+        float drawX = (screenW - drawW) / 2.0f;
+        float drawY = (screenH - drawH) / 2.0f;
+
+        raw_pos.x = (raw_pos.x - drawX) / scale;
+        raw_pos.y = (raw_pos.y - drawY) / scale;
+
+        raw_delta.x /= scale;
+        raw_delta.y /= scale;
+    }
 
     if (pos_out) {
         pos_out->x = ClampFloat(raw_pos.x, 0.0f, (float)(g_view_w - 1));
@@ -403,6 +429,7 @@ void Keyboard_Register(lua_State *L) {
     lua_pushcfunction(L, lua_input_mouseReleased); lua_setfield(L, -2, "mouseReleased");
     lua_pushcfunction(L, lua_input_mouseWheel); lua_setfield(L, -2, "mouseWheel");
     lua_pushcfunction(L, lua_input_lockMouse); lua_setfield(L, -2, "lockMouse");
+    lua_pushcfunction(L, lua_input_unlockMouse); lua_setfield(L, -2, "unlockMouse");
     lua_pushcfunction(L, lua_input_readText); lua_setfield(L, -2, "readText");
     lua_pushcfunction(L, lua_input_poll); lua_setfield(L, -2, "poll");
     lua_setglobal(L, "input");

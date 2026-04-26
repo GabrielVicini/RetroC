@@ -24,6 +24,7 @@ void App_Init(AppEngine* app, const char* title, int width, int height) {
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(width, height, title);
+    SetExitKey(KEY_NULL); // Tells raylib to stop nuking the app on ESC
 
 
     char resourceRoot[MAX_PATH_SIZE];
@@ -50,7 +51,7 @@ void App_Init(AppEngine* app, const char* title, int width, int height) {
 
     LuaEngine_RunStartup(app->L, resourceRoot);
 
-    SetTargetFPS(999);
+    SetTargetFPS(99999);
 }
 
 void App_Update(AppEngine* app) {
