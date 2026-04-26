@@ -4,7 +4,7 @@ int main(void) {
     AppEngine app = {0};
 
     // Pass its address to be initialized
-    App_Init(&app, "Vanguard", 640, 360);
+    App_Init(&app, "Tinhead", 1920, 1080);
 
     while (!WindowShouldClose()) {
         App_Update(&app);

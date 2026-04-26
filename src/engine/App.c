@@ -16,6 +16,8 @@ static void BuildResourcePath(char *out, const char *relative) {
     }
 }
 
+
+
 void App_Init(AppEngine* app, const char* title, int width, int height) {
     app->width = width;
     app->height = height;
@@ -73,7 +75,7 @@ void App_Render(AppEngine* app) {
 
 
     Framebuffer_Render(&app->fb, GetScreenWidth(), GetScreenHeight());
-    
+
     EndDrawing();
 }
 

@@ -176,7 +176,7 @@ function main()
 
         -- UI
         t_fillRect(0, 0, 240, 30, 0, 0, 0)
-        text.drawText(5, 5, "FPS: " .. s_getFPS() .. " (ULTRA MODE)", 0, 255, 100, 1)
+        text.drawText(5, 5, "FPS: " .. s_getFPS() .. " 4/26/26", 0, 255, 100, 1)
 
         coroutine.yield(0)
     end

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(RetroC C)
+project(Tinhead C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -12,11 +12,11 @@ file(GLOB_RECURSE SOURCES
         "src/*.c"
 )
 
-add_executable(RetroC ${SOURCES}
+add_executable(Tinhead ${SOURCES}
         src/engine/App.c
         src/engine/App.h)
 
-target_include_directories(RetroC PUBLIC
+target_include_directories(Tinhead PUBLIC
         "${RAYLIB_DIR}/src"         # Raylib headers
         "${LUAJIT_DIR}/src"         # LuaJIT headers
         "${CMAKE_SOURCE_DIR}/src"   # Your project headers
@@ -27,7 +27,7 @@ if (WIN32)
 
     set(RAY_LIB "C:/libraries/raylib/projects/VS2022/build/raylib/bin/x64/Release/raylib.lib")
 
-    target_link_libraries(RetroC PRIVATE
+    target_link_libraries(Tinhead PRIVATE
             ${LUA_LIB}
             ${RAY_LIB}
             winmm
@@ -39,19 +39,19 @@ if (WIN32)
 else()
     find_library(RAYLIB_NAMES raylib)
     find_library(LUA_NAMES luajit-5.1)
-    target_link_libraries(RetroC PRIVATE ${RAYLIB_NAMES} ${LUA_NAMES})
+    target_link_libraries(Tinhead PRIVATE ${RAYLIB_NAMES} ${LUA_NAMES})
 endif()
 
-add_custom_command(TARGET RetroC POST_BUILD
+add_custom_command(TARGET Tinhead POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/resources"
-        "$<TARGET_FILE_DIR:RetroC>/resources"
+        "$<TARGET_FILE_DIR:Tinhead>/resources"
 )
 
 if (WIN32)
-    add_custom_command(TARGET RetroC POST_BUILD
+    add_custom_command(TARGET Tinhead POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${LUAJIT_DIR}/src/lua51.dll"
-            "$<TARGET_FILE_DIR:RetroC>/lua51.dll"
+            "$<TARGET_FILE_DIR:Tinhead>/lua51.dll"
     )
 endif()
