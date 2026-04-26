@@ -1,81 +1,57 @@
 cmake_minimum_required(VERSION 3.10)
 project(RetroC C)
+
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(RAYLIB_PATH "" CACHE PATH "Path to raylib (root with include/ and lib/)")
-set(LUAJIT_SRC_PATH "" CACHE PATH "Path to LuaJIT src directory (contains lua.h)")
+set(LIB_BASE_DIR "C:/libraries")
+set(RAYLIB_DIR "${LIB_BASE_DIR}/raylib")
+set(LUAJIT_DIR "${LIB_BASE_DIR}/LuaJIT")
 
-if (NOT RAYLIB_PATH)
-    message(FATAL_ERROR "RAYLIB_PATH is required. Set it to the raylib root directory.")
-endif()
-if (NOT LUAJIT_SRC_PATH)
-    message(FATAL_ERROR "LUAJIT_SRC_PATH is required. Set it to the LuaJIT src directory.")
-endif()
-
-set(LUAJIT_LIB "${LUAJIT_SRC_PATH}/libluajit-5.1.dll.a")
-set(LUAJIT_DLL "${LUAJIT_SRC_PATH}/lua51.dll")
-
-add_executable(RetroC
-        src/main.c
-        src/engine/RenderBuffer.c
-        src/engine/LuaEngine.c
-        src/lua/LuaKeyboard.c
-        src/lua/LuaGraphics.c
-        src/lua/LuaSystem.c
+file(GLOB_RECURSE SOURCES
+        "src/*.c"
 )
+
+add_executable(RetroC ${SOURCES}
+        src/engine/App.c
+        src/engine/App.h)
 
 target_include_directories(RetroC PUBLIC
-        ${RAYLIB_PATH}/include
-        ${LUAJIT_SRC_PATH} # for lua.h, luajit.h, lauxlib.h, etc.
-        ${CMAKE_SOURCE_DIR}/src
+        "${RAYLIB_DIR}/src"         # Raylib headers
+        "${LUAJIT_DIR}/src"         # LuaJIT headers
+        "${CMAKE_SOURCE_DIR}/src"   # Your project headers
 )
 
 if (WIN32)
-    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
-    target_link_libraries(RetroC
-            ${LUAJIT_LIB}        # link LuaJIT
-            raylib
-            opengl32
-            gdi32
+    set(LUA_LIB "${LUAJIT_DIR}/src/lua51.lib")
+
+    set(RAY_LIB "C:/libraries/raylib/projects/VS2022/build/raylib/bin/x64/Release/raylib.lib")
+
+    target_link_libraries(RetroC PRIVATE
+            ${LUA_LIB}
+            ${RAY_LIB}
             winmm
-    )
-elseif (APPLE)
-    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
-    target_link_libraries(RetroC
-            ${LUAJIT_LIB}
-            raylib
-            "-framework OpenGL"
-            "-framework Cocoa"
-            "-framework IOKit"
-            "-framework CoreVideo"
+            gdi32
+            opengl32
+            shell32
+            user32
     )
 else()
-    target_link_directories(RetroC PRIVATE ${RAYLIB_PATH}/lib)
-    target_link_libraries(RetroC
-            ${LUAJIT_LIB}
-            raylib
-            pthread
-            m
-            dl
-            GL
-            X11
-            Xrandr
-            Xi
-    )
+    find_library(RAYLIB_NAMES raylib)
+    find_library(LUA_NAMES luajit-5.1)
+    target_link_libraries(RetroC PRIVATE ${RAYLIB_NAMES} ${LUA_NAMES})
 endif()
 
-add_custom_command(
-        TARGET RetroC POST_BUILD
+add_custom_command(TARGET RetroC POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/resources"
-        "${CMAKE_BINARY_DIR}/resources"
+        "$<TARGET_FILE_DIR:RetroC>/resources"
 )
 
 if (WIN32)
-    add_custom_command(
-            TARGET RetroC POST_BUILD
+    add_custom_command(TARGET RetroC POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${LUAJIT_DLL}"
-            "$<TARGET_FILE_DIR:RetroC>"
+            "${LUAJIT_DIR}/src/lua51.dll"
+            "$<TARGET_FILE_DIR:RetroC>/lua51.dll"
     )
 endif()
