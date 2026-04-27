@@ -3,6 +3,7 @@
 #include "../lua/LuaSystem.h"
 #include "../lua/LuaNetworking.h"
 #include "../lua/LuaKeyboard.h"
+#include "../lua/LuaSound.h"
 #include "raylib.h"
 #include <stdio.h>
 
@@ -34,6 +35,7 @@ lua_State* LuaEngine_Create() {
     SystemRegister(L);
     Networking_Register(L);
     Keyboard_Register(L);
+    Sound_Register(L);
     return L;
 }
 

@@ -16,7 +16,9 @@ add_executable(Tinhead ${SOURCES}
         src/engine/App.c
         src/engine/App.h
         src/lua/LuaNetworking.c
-        src/lua/LuaNetworking.h)
+        src/lua/LuaNetworking.h
+        src/lua/LuaSound.c
+        src/lua/LuaSound.h)
 
 target_include_directories(Tinhead PUBLIC
         "${RAYLIB_DIR}/src"         # Raylib headers

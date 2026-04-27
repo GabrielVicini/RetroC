@@ -22,6 +22,12 @@ function Button:update(mx, my, mDown, dt, mPressed)
     self.hovered = (mx >= self.x and mx <= self.x + self.w and my >= self.y and my <= self.y + self.h)
     self.pressed = self.hovered and mDown
 
+    if self.hovered and mPressed then
+            if type(self.onClick) == "function" then
+                self:onClick()
+            end
+        end
+
     local targetScale = 1
     if self.pressed then
         targetScale = 0.95

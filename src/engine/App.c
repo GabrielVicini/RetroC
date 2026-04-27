@@ -3,6 +3,7 @@
 #include "lua/LuaSystem.h"
 #include "lua/LuaKeyboard.h"
 #include "lua/LuaNetworking.h"
+#include "lua/LuaSound.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -25,6 +26,7 @@ void App_Init(AppEngine* app, const char* title, int width, int height) {
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(width, height, title);
+    Sound_Init();
     SetExitKey(KEY_NULL); // Tells raylib to stop nuking the app on ESC
 
 
@@ -80,5 +82,6 @@ void App_Shutdown(AppEngine* app) {
     LuaEngine_Destroy(app->L);
     Framebuffer_Destroy(&app->fb);
     Networking_Shutdown();
+    Sound_Shutdown();
     CloseWindow();
 }
