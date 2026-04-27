@@ -54,19 +54,12 @@ void App_Init(AppEngine* app, const char* title, int width, int height) {
 
     LuaEngine_RunStartup(app->L, resourceRoot);
 
-    SetTargetFPS(120);
+    SetTargetFPS(0);
 }
 
 void App_Update(AppEngine* app) {
     if (IsWindowResized()) {
-        int w = GetScreenWidth();
-        int h = GetScreenHeight();
-
-        if (IsWindowResized()) {
-            Keyboard_SetViewport(GetScreenWidth(), GetScreenHeight());
-        }
-
-        Keyboard_SetViewport(w, h);
+        Keyboard_SetViewport(app->fb.width, app->fb.height);
     }
 
     Keyboard_Update();

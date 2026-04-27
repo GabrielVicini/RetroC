@@ -132,6 +132,22 @@ static int lua_term_drawLine(lua_State *L) {
     return 1;
 }
 
+static int lua_term_getBuffer(lua_State *L) {
+    if (!g_fb || !g_fb->pixels) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushlightuserdata(L, g_fb->pixels);
+    return 1;
+}
+
+static int lua_term_flush(lua_State *L) {
+    if (g_fb) {
+        g_fb->isDirty = true;
+    }
+    return 0;
+}
+
 void GraphicsRegister(lua_State *L) {
     lua_newtable(L);
 
@@ -152,6 +168,12 @@ void GraphicsRegister(lua_State *L) {
 
     lua_pushcfunction(L, lua_term_getPixel);
     lua_setfield(L, -2, "getPixel");
+
+    lua_pushcfunction(L, lua_term_getBuffer);
+    lua_setfield(L, -2, "getBuffer");
+
+    lua_pushcfunction(L, lua_term_flush);
+    lua_setfield(L, -2, "flush");
 
     lua_setglobal(L, "term");
 }

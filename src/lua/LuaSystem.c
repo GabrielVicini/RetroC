@@ -14,7 +14,7 @@ static int lua_sys_getPSTime(lua_State *L) {
 }
 
 static int lua_sys_wait(lua_State *L) {
-    lua_pushnumber(L, GetTime() + lua_tonumber(L, 1));
+    lua_pushnumber(L, lua_tonumber(L, 1));
     return lua_yield(L, 1);
 }
 

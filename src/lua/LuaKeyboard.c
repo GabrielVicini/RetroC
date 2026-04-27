@@ -70,25 +70,33 @@ static void Input_ReadMouse(Vector2 *pos_out, Vector2 *delta_out) {
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
+    // g_view_w/h MUST be your Framebuffer dimensions (e.g. 640x480)
+    // NOT the window dimensions.
     if (g_view_w > 0 && g_view_h > 0) {
-        float scale = (float)screenW / g_view_w;
-        if ((float)screenH / g_view_h < scale) {
-            scale = (float)screenH / g_view_h;
+        // Calculate scale exactly like Framebuffer_Render
+        float scale = (float)screenW / (float)g_view_w;
+        if ((float)screenH / (float)g_view_h < scale) {
+            scale = (float)screenH / (float)g_view_h;
         }
 
-        float drawW = g_view_w * scale;
-        float drawH = g_view_h * scale;
+        float drawW = (float)g_view_w * scale;
+        float drawH = (float)g_view_h * scale;
+
+        // Calculate the offsets (the black bars)
         float drawX = (screenW - drawW) / 2.0f;
         float drawY = (screenH - drawH) / 2.0f;
 
+        // Map window space to framebuffer space
         raw_pos.x = (raw_pos.x - drawX) / scale;
         raw_pos.y = (raw_pos.y - drawY) / scale;
 
+        // Scale the delta so movement speed feels consistent
         raw_delta.x /= scale;
         raw_delta.y /= scale;
     }
 
     if (pos_out) {
+        // Clamp to the virtual resolution bounds
         pos_out->x = ClampFloat(raw_pos.x, 0.0f, (float)(g_view_w - 1));
         pos_out->y = ClampFloat(raw_pos.y, 0.0f, (float)(g_view_h - 1));
     }

@@ -19,20 +19,43 @@ end
 local function utf8_to_codepoints(str)
     local points = {}
     local i = 1
-    while i <= #str do
+    local len = #str
+
+    while i <= len do
         local b = str:byte(i)
         local val, bytes
+
         if b < 0x80 then val, bytes = b, 1
         elseif b < 0xE0 then val, bytes = bit.band(b, 0x1F), 2
         elseif b < 0xF0 then val, bytes = bit.band(b, 0x0F), 3
         else val, bytes = bit.band(b, 0x07), 4 end
 
+        local is_valid = true
         for j = 1, bytes - 1 do
-            val = bit.bor(bit.lshift(val, 6), bit.band(str:byte(i + j), 0x3F))
+            if i + j > len then
+                is_valid = false
+                break
+            end
+
+            local next_byte = str:byte(i + j)
+
+            if bit.band(next_byte, 0xC0) ~= 0x80 then
+                is_valid = false
+                break
+            end
+
+            val = bit.bor(bit.lshift(val, 6), bit.band(next_byte, 0x3F))
         end
-        table.insert(points, val)
-        i = i + bytes
+
+        if is_valid then
+            table.insert(points, val)
+            i = i + bytes
+        else
+            table.insert(points, 63)
+            i = i + 1
+        end
     end
+
     return points
 end
 
